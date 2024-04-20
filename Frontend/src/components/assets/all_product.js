@@ -63,7 +63,7 @@ let all_product = [
   {
     id: 4,
     name: "Arabica Coffee Beans",
-    category: "coffee-beans",
+    category: "coffee-products",
     image: p4_img,
     new_price: 100.0,
     old_price: 150.0,
@@ -143,7 +143,7 @@ let all_product = [
   {
     id: 14,
     name: "Assam CTC Tea",
-    category: "coffee-beans",
+    category: "coffee-products",
     image: p14_img,
     new_price: 85.0,
     old_price: 120.5,
