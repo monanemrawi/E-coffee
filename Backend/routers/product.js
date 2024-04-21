@@ -74,4 +74,21 @@ router.get('/allproducts', async (req, res) => {
     res.send(products)
 })
 
+//get new collection
+router.get('/newcollections', async (req, res) => {
+    let products = await Product.find({});
+    let newcollection = products.slice(1).slice(-8);
+
+    console.log("new collection fetched")
+    res.send(newcollection)
+})
+
+// get popular in coffee-products 
+router.get('/popular', async (req, res) => {
+    let products = await Product.find({category: 'coffee-products'});
+    let popular = products.slice(0,4);
+
+    console.log('popular fetched')
+    res.send(popular)
+})
 module.exports = router;

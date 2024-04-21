@@ -48,17 +48,6 @@ router.post('/logout', auth, async (req, res) => {
     }
 })
 
-//logging out the user from everywhere
-router.post('/logoutAll', auth, async (req, res) => {
-    try {
-        req.user.tokens = []
-        await req.user.save()
-        res.send()
-    } catch (e) {
-        res.status(500).send()
-    }
-})
-
 //updating user
 router.patch('/users/me', auth, async (req, res) => {
     const updates = Object.keys(req.body)
