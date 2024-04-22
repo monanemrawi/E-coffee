@@ -19,4 +19,26 @@ const auth = async (req, res, next) => {
     }
 }
 
-module.exports = auth
+//middleware to fetch user
+const fetchUser = async (req, res, next) => {
+    const token = req.header('authToken');
+    if (!token) {
+        res.status(401).send({ errors: 'Please authenticate' });
+    } else {
+        try {
+            const data = jwt.verify(token, process.env.JWT_SECRET);
+            req.userId = data._id;
+            next();
+        } catch (e) {
+            console.error('Error verifying token:', e);
+            res.status(401).send({ errors: 'Please authenticate' });
+        }
+    }
+};
+
+
+module.exports = {
+    auth,
+    fetchUser
+
+}

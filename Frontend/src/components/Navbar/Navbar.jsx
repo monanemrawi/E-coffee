@@ -10,6 +10,33 @@ const Navbar = () => {
     const [menu, setMenu] = useState('shop');
     const {getTotalCartItems} = useContext(ShopContext)
 
+    const handleLogout = async () => {
+        try {
+            const authToken = localStorage.getItem('authToken');
+            if (!authToken) {
+                throw new Error('No authToken found');
+            }
+
+            const response = await fetch('http://localhost:8000/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                }
+            });
+
+            if (response.ok) {
+                localStorage.removeItem('authToken');
+                window.location.replace('/');
+            } else {
+                const errorMessage = await response.text();
+                throw new Error(`Logout failed: ${errorMessage}`);
+            }
+        } catch (error) {
+            alert('An error occurred during logout');
+        }
+    };
+
   return (
     <div className='navbar'>
         <div className='nav-logo'>
@@ -23,7 +50,9 @@ const Navbar = () => {
             <li onClick={() => {setMenu('accessories')}}><Link style={{textDecoration: 'none'}} to='/accessories'>Accessories</Link>{menu === 'accessories' ? <hr/>: <></>}</li>
         </ul>
         <div className='nav-login-cart'>
-            <Link to='/login'><button>Login</button></Link>
+            {localStorage.getItem('authToken')
+            ?<button onClick={handleLogout}>Logout</button>
+            :<Link to='/login'><button>Login</button></Link>}
             <Link to='/cart'><img src = { cart_icon } alt='cart logo' /></Link>
             <div className='nav-cart-count'>{getTotalCartItems()}</div>
         </div>

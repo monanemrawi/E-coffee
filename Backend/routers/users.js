@@ -1,8 +1,9 @@
 const express = require('express')
-const auth = require('../middleware/auth')
+const {auth} = require('../middleware/auth')
 const { sendWelcomeEmail, sendCancelEmail } = require('../emails/account')
 const User = require('../models/users')
 const router = new express.Router()
+const {fetchUser} = require('../middleware/auth')
 
 //Registering the user
 router.post('/signup', async (req, res) => {
@@ -18,7 +19,7 @@ router.post('/signup', async (req, res) => {
         await user.save()
         sendWelcomeEmail(user.email, user.name)
         const token = await user.generateAuthToken()
-        res.status(201).json({ success: true, token })
+        res.status(201).json({ success: true, token, user: user._id }) // Include user ID in the response
     } catch(e) {
         res.status(500).send()
     }
@@ -29,7 +30,7 @@ router.post('/login', async (req,res) => {
     try {
         const user = await User.findByCredentials(req.body.email, req.body.password)
         const token = await user.generateAuthToken()
-        res.json({ success: true, token })
+        res.json({ success: true, token, user: user._id }) // Include user ID in the response
     } catch (e) {
         res.status(400).send()
     }
@@ -78,7 +79,57 @@ router.delete('/users/me', auth, async (req, res) => {
     }
 })
 
+// saving products in cart 
+router.post('/addtocart', fetchUser, async (req, res) => {
+    try {
+        console.log('added', req.body.itemId );
+        let userData = await User.findOne({ _id: req.userId });
+
+        const itemId = req.body.itemId;
+        userData.cartData[itemId] += 1;
+
+        await User.findOneAndUpdate(
+            { _id: req.userId }, 
+            { cartData: userData.cartData }
+        );
+
+        return res.status(200).json({ message: 'Item added' });
+        
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+})
+
+//removing products from cart
+router.post('/removefromcart', fetchUser, async (req, res) => {
+    try {
+        console.log('removed', req.body.itemId );
+        let userData = await User.findOne({ _id: req.userId });
+
+        const itemId = req.body.itemId;
+        if (userData.cartData[itemId] > 0)
+            userData.cartData[itemId] -= 1;
+
+        await User.findOneAndUpdate(
+            { _id: req.userId }, 
+            { cartData: userData.cartData }
+        );
+
+        return res.status(200).json({ message: 'Item removed' });
+        
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+})
+
+//get cart data
+router.post('/getcart', fetchUser, async (req, res) => {
+    console.log('Get cart');
+    let userData = await User.findOne({_id: req.userId});
+    res.json(userData.cartData);
+})
+
 module.exports = router
 
-//TODO - create frontend for these endpoints: logout, logoutall, update user, delete user
-//TODO - create newsletter page
