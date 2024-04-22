@@ -125,11 +125,11 @@ router.post('/removefromcart', fetchUser, async (req, res) => {
 })
 
 //get cart data
-router.post('/getcart', fetchUser, async (req, res) => {
-    console.log('Get cart');
-    let userData = await User.findOne({_id: req.userId});
-    res.json(userData.cartData);
-})
+// router.post('/getcart', fetchUser, async (req, res) => {
+//     console.log('Get cart');
+//     let userData = await User.findOne({_id: req.userId});
+//     res.json(userData.cartData);
+// })
 
 module.exports = router
 
